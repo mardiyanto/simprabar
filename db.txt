@@ -1,0 +1,40 @@
+-- Tabel User
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50),
+  password VARCHAR(100),
+  role ENUM('admin', 'ruangan', 'it'),
+  nama VARCHAR(100)
+);
+
+-- Tabel Ruangan
+CREATE TABLE ruangan (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_ruangan VARCHAR(100)
+);
+
+-- Tabel Barang
+CREATE TABLE barang (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_barang VARCHAR(100),
+  ruangan_id INT,
+  FOREIGN KEY (ruangan_id) REFERENCES ruangan(id)
+);
+
+-- Tabel Tiket
+CREATE TABLE tiket (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nomor_tiket VARCHAR(30) UNIQUE,
+  ruangan_id INT,
+  barang_id INT,
+  deskripsi_kerusakan TEXT,
+  deskripsi_perbaikan TEXT,
+  foto_kerusakan VARCHAR(255),
+  foto_perbaikan VARCHAR(255),
+  status ENUM('Menunggu', 'Diproses', 'Selesai'),
+  hasil_perbaikan ENUM('Diperbaiki', 'Service Center', 'Rusak Total'),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME,
+  FOREIGN KEY (ruangan_id) REFERENCES ruangan(id),
+  FOREIGN KEY (barang_id) REFERENCES barang(id)
+);

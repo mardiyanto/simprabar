@@ -1,0 +1,54 @@
+app/
+├── Controllers/
+│   ├── Auth.php           ; Login/logout
+│   ├── Tiket.php          ; Input, update, lihat tiket
+│   ├── Dashboard.php      ; Halaman utama per role
+├── Models/
+│   ├── UserModel.php
+│   ├── TiketModel.php
+│   ├── BarangModel.php
+│   ├── RuanganModel.php
+├── Views/
+│   ├── auth/
+│   │   ├── login.php
+│   ├── tiket/
+│   │   ├── input.php
+│   │   ├── detail.php
+│   ├── dashboard/
+│   │   ├── admin.php
+│   │   ├── it.php
+│   │   ├── ruangan.php
+public/
+├── uploads/               ; Foto kerusakan & perbaikan
+
+Fitur Aplikasi Permintaan Perbaikan
+1. Login Multi Role
+Admin	:Kelola user, ruangan, barang, semua tiket,Lihat tiket masuk, update status
+Ruangan	: Input tiket baru, lihat status
+IT	: Lihat tiket masuk, update status
+
+2. Form Permintaan Perbaikan (oleh User Ruangan)
+Pilih Ruangan
+Pilih Barang / Komputer
+Input Jenis Kerusakan
+Upload Foto Kerusakan (dari kamera langsung  pakai web)
+Sistem otomatis membuat Nomor Tiket (misal: TIK20250630001)
+Status awal: Menunggu Penanganan
+
+3. Dashboard Tim IT
+Melihat daftar tiket baru
+Klik detail tiket:
+Lihat ruangan, barang, foto, deskripsi kerusakan
+Upload foto setelah diperiksa
+Pilih hasil pemeriksaan:
+
+✅ Diperbaiki
+🔄 Dirujuk ke Service Center
+❌ Rusak Total
+
+Ubah status tiket
+
+4. Notifikasi
+Sistem notifikasi (bisa via dashboard)
+Tim IT mendapat notifikasi saat ada tiket baru
+User mendapat notifikasi saat status diperbarui
