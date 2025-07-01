@@ -43,7 +43,7 @@
                                     <?= session('error') ?>
                                 </div>
                             <?php endif; ?>
-                            <form role="form" method="post" action="<?= base_url('auth/doLogin') ?>">
+                            <form role="form" method="post" action="<?= base_url('login/doLogin') ?>">
                                 <div class="form-group mb-3">
                                     <div class="input-group input-group-merge input-group-alternative">
                                         <div class="input-group-prepend">

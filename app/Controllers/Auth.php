@@ -6,7 +6,7 @@ class Auth extends BaseController
 {
     public function login()
     {
-        return view('auth/login');
+        return view('login/index');
     }
 
     public function doLogin()
@@ -43,6 +43,6 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/auth/login');
+        return redirect()->to('/login');
     }
 }

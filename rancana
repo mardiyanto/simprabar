@@ -1,4 +1,4 @@
-app/
+D:/laragon/www/simprabar/app/
 ├── Controllers/
 │   ├── Auth.php           ; Login/logout
 │   ├── Tiket.php          ; Input, update, lihat tiket
@@ -9,15 +9,21 @@ app/
 │   ├── BarangModel.php
 │   ├── RuanganModel.php
 ├── Views/
-│   ├── auth/
-│   │   ├── login.php
-│   ├── tiket/
-│   │   ├── input.php
-│   │   ├── detail.php
+│   ├── login/
+│   │   ├── index.php
+
 │   ├── dashboard/
 │   │   ├── admin.php
 │   │   ├── it.php
 │   │   ├── ruangan.php
+│   │   ├── user
+│   │   │   ├── index.php
+│   │   │   ├── form.php
+│   │   ├── tiket/
+│   │   │   ├── index.php
+│   │   │   ├── form.php
+
+
 public/
 ├── uploads/               ; Foto kerusakan & perbaikan
 
