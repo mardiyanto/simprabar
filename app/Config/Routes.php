@@ -30,3 +30,9 @@ $routes->post('ruangan/store', 'Ruangan::store');
 $routes->get('ruangan/edit/(:num)', 'Ruangan::edit/$1');
 $routes->post('ruangan/update/(:num)', 'Ruangan::update/$1');
 $routes->get('ruangan/delete/(:num)', 'Ruangan::delete/$1');
+
+$routes->get('barang', 'Barang::index');
+$routes->post('barang/store', 'Barang::store');
+$routes->get('barang/edit/(:num)', 'Barang::edit/$1');
+$routes->post('barang/update/(:num)', 'Barang::update/$1');
+$routes->get('barang/delete/(:num)', 'Barang::delete/$1');

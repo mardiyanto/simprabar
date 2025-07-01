@@ -11,9 +11,9 @@
       <div class="col-xl-12">
         <div class="card shadow">
           <div class="card-header border-0 d-flex justify-content-between align-items-center">
-            <h3 class="mb-0">Daftar Ruangan</h3>
+            <h3 class="mb-0">Daftar Barang</h3>
             <?php if (session('role') === 'admin'): ?>
-              <a href="#" class="btn btn-primary btn-tambah-ruangan">Tambah Ruangan</a>
+              <a href="#" class="btn btn-primary btn-tambah-barang">Tambah Barang</a>
             <?php endif; ?>
           </div>
           <div class="card-body">
@@ -22,26 +22,28 @@
                 <thead class="thead-light">
                   <tr>
                     <th>No</th>
-                    <th>Nama Ruangan</th>
+                    <th>Nama Barang</th>
+                    <th>Ruangan</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php if (!empty($ruangan)): ?>
-                    <?php $no = 1; foreach ($ruangan as $r): ?>
+                  <?php if (!empty($barang)): ?>
+                    <?php $no = 1; foreach ($barang as $b): ?>
                       <tr>
                         <td><?= $no++ ?></td>
-                        <td><?= esc($r['nama_ruangan']) ?></td>
+                        <td><?= esc($b['nama_barang']) ?></td>
+                        <td><?= esc($b['nama_ruangan']) ?></td>
                         <td>
                           <?php if (session('role') === 'admin'): ?>
-                            <a href="#" class="btn btn-sm btn-warning btn-edit-ruangan" data-id="<?= $r['id'] ?>">Edit</a>
-                            <a href="<?= base_url('ruangan/delete') ?>/<?= $r['id'] ?>" class="btn btn-sm btn-danger btn-hapus-ruangan">Hapus</a>
+                            <a href="#" class="btn btn-sm btn-warning btn-edit-barang" data-id="<?= $b['id'] ?>">Edit</a>
+                            <a href="<?= base_url('barang/delete') ?>/<?= $b['id'] ?>" class="btn btn-sm btn-danger btn-hapus-barang">Hapus</a>
                           <?php endif; ?>
                         </td>
                       </tr>
                     <?php endforeach; ?>
                   <?php else: ?>
-                    <tr><td colspan="3" class="text-center">Tidak ada data ruangan.</td></tr>
+                    <tr><td colspan="4" class="text-center">Tidak ada data barang.</td></tr>
                   <?php endif; ?>
                 </tbody>
               </table>
@@ -54,7 +56,6 @@
   </div>
 </div>
 <?= $this->include('dashboard/jsadmin') ?>
-
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -77,26 +78,28 @@ Swal.fire({
   showConfirmButton: false
 });
 <?php endif; ?>
-// Tampilkan modal tambah ruangan
-$(document).on('click', '.btn-tambah-ruangan', function() {
-  $('#modalTambahRuangan').modal('show');
+// Tampilkan modal tambah barang
+$(document).on('click', '.btn-tambah-barang', function() {
+  $('#modalTambahBarang').modal('show');
 });
-// Tampilkan modal edit ruangan dan isi data
-$(document).on('click', '.btn-edit-ruangan', function() {
+// Tampilkan modal edit barang dan isi data
+$(document).on('click', '.btn-edit-barang', function() {
   var id = $(this).data('id');
-  $.get('<?= base_url('ruangan/edit') ?>/' + id, function(data) {
+  $.get('<?= base_url('barang/edit') ?>/' + id, function(data) {
     $('#edit_id').val(data.id);
-    $('#edit_nama_ruangan').val(data.nama_ruangan);
-    $('#formEditRuangan').attr('action', '<?= base_url('ruangan/update') ?>/' + data.id);
-    $('#modalEditRuangan').modal('show');
+    $('#edit_nama_barang').val(data.nama_barang);
+    $('#edit_ruangan_id').val(data.ruangan_id);
+    $('#edit_deskripsi_barang').val(data.deskripsi_barang);
+    $('#formEditBarang').attr('action', '<?= base_url('barang/update') ?>/' + data.id);
+    $('#modalEditBarang').modal('show');
   });
 });
-// SweetAlert2 konfirmasi hapus ruangan
-$(document).on('click', '.btn-hapus-ruangan', function(e) {
+// SweetAlert2 konfirmasi hapus barang
+$(document).on('click', '.btn-hapus-barang', function(e) {
   e.preventDefault();
   var url = $(this).attr('href');
   Swal.fire({
-    title: 'Yakin hapus ruangan ini?',
+    title: 'Yakin hapus barang ini?',
     text: 'Aksi ini tidak bisa dibatalkan!',
     icon: 'warning',
     showCancelButton: true,
@@ -112,22 +115,35 @@ $(document).on('click', '.btn-hapus-ruangan', function(e) {
 });
 </script>
 
-<!-- Modal Tambah Ruangan -->
-<div class="modal fade" id="modalTambahRuangan" tabindex="-1" role="dialog" aria-labelledby="modalTambahRuanganLabel" aria-hidden="true">
+<!-- Modal Tambah Barang -->
+<div class="modal fade" id="modalTambahBarang" tabindex="-1" role="dialog" aria-labelledby="modalTambahBarangLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
-    <form method="post" action="<?= base_url('ruangan/store') ?>">
+    <form method="post" action="<?= base_url('barang/store') ?>">
       <?= csrf_field() ?>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalTambahRuanganLabel">Tambah Ruangan</h5>
+          <h5 class="modal-title" id="modalTambahBarangLabel">Tambah Barang</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>Nama Ruangan</label>
-            <input type="text" name="nama_ruangan" class="form-control" required>
+            <label>Nama Barang</label>
+            <input type="text" name="nama_barang" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Ruangan</label>
+            <select name="ruangan_id" class="form-control" required>
+              <option value="">Pilih Ruangan</option>
+              <?php foreach ($ruangan as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Deskripsi Barang</label>
+            <textarea name="deskripsi_barang" class="form-control" required></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -139,14 +155,14 @@ $(document).on('click', '.btn-hapus-ruangan', function(e) {
   </div>
 </div>
 
-<!-- Modal Edit Ruangan -->
-<div class="modal fade" id="modalEditRuangan" tabindex="-1" role="dialog" aria-labelledby="modalEditRuanganLabel" aria-hidden="true">
+<!-- Modal Edit Barang -->
+<div class="modal fade" id="modalEditBarang" tabindex="-1" role="dialog" aria-labelledby="modalEditBarangLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
-    <form method="post" id="formEditRuangan">
+    <form method="post" id="formEditBarang">
       <?= csrf_field() ?>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalEditRuanganLabel">Edit Ruangan</h5>
+          <h5 class="modal-title" id="modalEditBarangLabel">Edit Barang</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -154,8 +170,21 @@ $(document).on('click', '.btn-hapus-ruangan', function(e) {
         <div class="modal-body">
           <input type="hidden" name="id" id="edit_id">
           <div class="form-group">
-            <label>Nama Ruangan</label>
-            <input type="text" name="nama_ruangan" id="edit_nama_ruangan" class="form-control" required>
+            <label>Nama Barang</label>
+            <input type="text" name="nama_barang" id="edit_nama_barang" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Ruangan</label>
+            <select name="ruangan_id" id="edit_ruangan_id" class="form-control" required>
+              <option value="">Pilih Ruangan</option>
+              <?php foreach ($ruangan as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Deskripsi Barang</label>
+            <textarea name="deskripsi_barang" id="edit_deskripsi_barang" class="form-control" required></textarea>
           </div>
         </div>
         <div class="modal-footer">

@@ -1,8 +1,9 @@
 <?php
 namespace App\Controllers;
+use App\Models\BarangModel;
 use App\Models\RuanganModel;
 
-class Ruangan extends BaseController
+class Barang extends BaseController
 {
     public function index()
     {
@@ -13,9 +14,13 @@ class Ruangan extends BaseController
         // if ($session->get('role') !== 'admin') {
         //     return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         // }
-        $model = new RuanganModel();
-        $ruangan = $model->findAll();
-        return view('dashboard/ruangan/index', ['ruangan' => $ruangan]);
+        $barangModel = new BarangModel();
+        $ruanganModel = new RuanganModel();
+        $barang = $barangModel->select('barang.*, ruangan.nama_ruangan')
+            ->join('ruangan', 'ruangan.id = barang.ruangan_id', 'left')
+            ->findAll();
+        $ruangan = $ruanganModel->findAll();
+        return view('dashboard/barang/index', ['barang' => $barang, 'ruangan' => $ruangan]);
     }
 
     public function store()
@@ -27,12 +32,14 @@ class Ruangan extends BaseController
         if ($session->get('role') !== 'admin') {
             return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         }
-        $model = new RuanganModel();
+        $barangModel = new BarangModel();
         $data = [
-            'nama_ruangan' => $this->request->getPost('nama_ruangan'),
+            'nama_barang' => $this->request->getPost('nama_barang'),
+            'deskripsi_barang' => $this->request->getPost('deskripsi_barang'),
+            'ruangan_id' => $this->request->getPost('ruangan_id'),
         ];
-        $model->insert($data);
-        return redirect()->to('/ruangan')->with('success', 'Ruangan berhasil ditambahkan.');
+        $barangModel->insert($data);
+        return redirect()->to('/barang')->with('success', 'Barang berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -44,9 +51,9 @@ class Ruangan extends BaseController
         if ($session->get('role') !== 'admin') {
             return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         }
-        $model = new RuanganModel();
-        $ruangan = $model->find($id);
-        return $this->response->setJSON($ruangan);
+        $barangModel = new BarangModel();
+        $barang = $barangModel->find($id);
+        return $this->response->setJSON($barang);
     }
 
     public function update($id)
@@ -56,14 +63,16 @@ class Ruangan extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
         if ($session->get('role') !== 'admin') {
-            return redirect()->to('/login' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         }
-        $model = new RuanganModel();
+        $barangModel = new BarangModel();
         $data = [
-            'nama_ruangan' => $this->request->getPost('nama_ruangan'),
+            'nama_barang' => $this->request->getPost('nama_barang'),
+            'deskripsi_barang' => $this->request->getPost('deskripsi_barang'),
+            'ruangan_id' => $this->request->getPost('ruangan_id'),
         ];
-        $model->update($id, $data);
-        return redirect()->to('/ruangan')->with('success', 'Ruangan berhasil diupdate.');
+        $barangModel->update($id, $data);
+        return redirect()->to('/barang')->with('success', 'Barang berhasil diupdate.');
     }
 
     public function delete($id)
@@ -75,8 +84,8 @@ class Ruangan extends BaseController
         if ($session->get('role') !== 'admin') {
             return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         }
-        $model = new RuanganModel();
-        $model->delete($id);
-        return redirect()->to('/ruangan')->with('success', 'Ruangan berhasil dihapus.');
+        $barangModel = new BarangModel();
+        $barangModel->delete($id);
+        return redirect()->to('/barang')->with('success', 'Barang berhasil dihapus.');
     }
 } 

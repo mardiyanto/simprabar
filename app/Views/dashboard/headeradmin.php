@@ -109,28 +109,28 @@
         </form>
         <!-- Navigation -->
         <ul class="navbar-nav">
-          <li class="nav-item  active ">
-            <a class="nav-link  active " href="<?= base_url('dashboard/admin') ?>">
+          <li class="nav-item <?= (current_url() == base_url('dashboard/admin')) ? 'active' : '' ?>">
+            <a class="nav-link <?= (current_url() == base_url('dashboard/admin')) ? 'active' : '' ?>" href="<?= base_url('dashboard/admin') ?>">
               <i class="ni ni-tv-2 text-primary"></i> Dashboard
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link " href="<?= base_url('ruangan') ?>">
+          <li class="nav-item <?= (current_url() == base_url('ruangan')) ? 'active' : '' ?>">
+            <a class="nav-link <?= (current_url() == base_url('ruangan')) ? 'active' : '' ?>" href="<?= base_url('ruangan') ?>">
               <i class="ni ni-planet text-blue"></i> Ruangan
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link " href="./examples/maps.html">
-              <i class="ni ni-pin-3 text-orange"></i> Maps
+          <li class="nav-item <?= (current_url() == base_url('barang')) ? 'active' : '' ?>">
+            <a class="nav-link <?= (current_url() == base_url('barang')) ? 'active' : '' ?>" href="<?= base_url('barang') ?>">
+              <i class="ni ni-pin-3 text-orange"></i> Barang
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link " href="<?= base_url('user') ?>">
+          <li class="nav-item <?= (current_url() == base_url('user')) ? 'active' : '' ?>">
+            <a class="nav-link <?= (current_url() == base_url('user')) ? 'active' : '' ?>" href="<?= base_url('user') ?>">
               <i class="ni ni-single-02 text-yellow"></i> User
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link " href="./examples/tables.html">
+            <a class="nav-link" href="./examples/tables.html">
               <i class="ni ni-bullet-list-67 text-red"></i> Tables
             </a>
           </li>

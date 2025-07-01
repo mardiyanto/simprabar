@@ -5,17 +5,15 @@ use CodeIgniter\HTTP\RedirectResponse;
 
 class User extends BaseController
 {
-    public function __construct()
-    {
-        $session = session();
-        if (!$session->get('logged_in') || $session->get('role') !== 'admin') {
-            header('Location: /login');
-            exit;
-        }
-    }
-
     public function index()
     {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        // if ($session->get('role') !== 'admin') {
+        //     return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        // }
         $userModel = new UserModel();
         $users = $userModel->findAll();
         return view('dashboard/user/index', ['users' => $users]);
@@ -23,6 +21,13 @@ class User extends BaseController
 
     public function store()
     {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        if ($session->get('role') !== 'admin') {
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        }
         $userModel = new UserModel();
         $data = [
             'username' => $this->request->getPost('username'),
@@ -39,6 +44,13 @@ class User extends BaseController
 
     public function edit($id)
     {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        if ($session->get('role') !== 'admin') {
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        }
         $userModel = new UserModel();
         $user = $userModel->find($id);
         return $this->response->setJSON($user);
@@ -46,6 +58,13 @@ class User extends BaseController
 
     public function update($id)
     {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        if ($session->get('role') !== 'admin') {
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        }
         $userModel = new UserModel();
         $data = [
             'username' => $this->request->getPost('username'),
@@ -62,6 +81,13 @@ class User extends BaseController
 
     public function delete($id)
     {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        if ($session->get('role') !== 'admin') {
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        }
         $userModel = new UserModel();
         $userModel->delete($id);
         return redirect()->to('/user')->with('success', 'User berhasil dihapus.');

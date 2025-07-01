@@ -17,6 +17,7 @@ CREATE TABLE ruangan (
 CREATE TABLE barang (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nama_barang VARCHAR(100),
+  deskripsi_barang TEXT,
   ruangan_id INT,
   FOREIGN KEY (ruangan_id) REFERENCES ruangan(id)
 );

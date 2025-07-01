@@ -8,20 +8,8 @@ D:/laragon/www/simprabar/app/
 │   ├── TiketModel.php
 │   ├── BarangModel.php
 │   ├── RuanganModel.php
+│   ├── AuthModel.php
 ├── Views/
-│   ├── login/
-│   │   ├── index.php
-
-│   ├── dashboard/
-│   │   ├── admin.php
-│   │   ├── it.php
-│   │   ├── ruangan.php
-│   │   ├── user
-│   │   │   ├── index.php
-│   │   │   ├── form.php
-│   │   ├── tiket/
-│   │   │   ├── index.php
-│   │   │   ├── form.php
 
 
 public/

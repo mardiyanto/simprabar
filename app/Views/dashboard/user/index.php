@@ -17,7 +17,9 @@
           <div class="card shadow">
             <div class="card-header border-0 d-flex justify-content-between align-items-center">
               <h3 class="mb-0">Daftar User</h3>
-              <a href="#" class="btn btn-primary btn-tambah-user">Tambah User</a>
+              <?php if (session('role') === 'admin'): ?>
+                <a href="#" class="btn btn-primary btn-tambah-user">Tambah User</a>
+              <?php endif; ?>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -40,8 +42,10 @@
                           <td><?= esc($user['nama']) ?></td>
                           <td><?= esc($user['role']) ?></td>
                           <td>
-                            <a href="#" class="btn btn-sm btn-warning btn-edit-user" data-id="<?= $user['id'] ?>">Edit</a>
-                            <a href="<?= base_url('dashboard/user/delete') ?>/<?= $user['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus user ini?')">Hapus</a>
+                            <?php if (session('role') === 'admin'): ?>
+                              <a href="#" class="btn btn-sm btn-warning btn-edit-user" data-id="<?= $user['id'] ?>">Edit</a>
+                              <a href="<?= base_url('dashboard/user/delete') ?>/<?= $user['id'] ?>" class="btn btn-sm btn-danger btn-hapus-user">Hapus</a>
+                            <?php endif; ?>
                           </td>
                         </tr>
                       <?php endforeach; ?>
@@ -60,6 +64,67 @@
     </div>
   </div>
   <?= $this->include('dashboard/jsadmin') ?>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Notifikasi SweetAlert2 dari flashdata
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+  icon: 'success',
+  title: 'Sukses',
+  text: '<?= session('success') ?>',
+  timer: 2000,
+  showConfirmButton: false
+});
+<?php endif; ?>
+<?php if (session()->getFlashdata('error')): ?>
+Swal.fire({
+  icon: 'error',
+  title: 'Gagal',
+  text: '<?= session('error') ?>',
+  timer: 2000,
+  showConfirmButton: false
+});
+<?php endif; ?>
+
+// Tampilkan modal tambah user
+$(document).on('click', '.btn-tambah-user', function() {
+  $('#modalTambahUser').modal('show');
+});
+// Tampilkan modal edit user dan isi data
+$(document).on('click', '.btn-edit-user', function() {
+  var id = $(this).data('id');
+  $.get('<?= base_url('dashboard/user/edit') ?>/' + id, function(data) {
+    $('#edit_id').val(data.id);
+    $('#edit_username').val(data.username);
+    $('#edit_nama').val(data.nama);
+    $('#edit_role').val(data.role);
+    $('#formEditUser').attr('action', '<?= base_url('dashboard/user/update') ?>/' + data.id);
+    $('#modalEditUser').modal('show');
+  });
+});
+
+// SweetAlert2 konfirmasi hapus user
+$(document).on('click', '.btn-hapus-user', function(e) {
+  e.preventDefault();
+  var url = $(this).attr('href');
+  Swal.fire({
+    title: 'Yakin hapus user ini?',
+    text: 'Aksi ini tidak bisa dibatalkan!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = url;
+    }
+  });
+});
+</script>
 
 <!-- Modal Tambah User -->
 <div class="modal fade" id="modalTambahUser" tabindex="-1" role="dialog" aria-labelledby="modalTambahUserLabel" aria-hidden="true">
@@ -149,22 +214,3 @@
     </form>
   </div>
 </div>
-
-<script>
-// Tampilkan modal tambah user
-$(document).on('click', '.btn-tambah-user', function() {
-  $('#modalTambahUser').modal('show');
-});
-// Tampilkan modal edit user dan isi data
-$(document).on('click', '.btn-edit-user', function() {
-  var id = $(this).data('id');
-  $.get('<?= base_url('dashboard/user/edit') ?>/' + id, function(data) {
-    $('#edit_id').val(data.id);
-    $('#edit_username').val(data.username);
-    $('#edit_nama').val(data.nama);
-    $('#edit_role').val(data.role);
-    $('#formEditUser').attr('action', '<?= base_url('dashboard/user/update') ?>/' + data.id);
-    $('#modalEditUser').modal('show');
-  });
-});
-</script>
