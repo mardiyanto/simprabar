@@ -25,7 +25,8 @@ class Auth extends BaseController
                 'username' => $user['username'],
                 'role' => $user['role'],
                 'nama' => $user['nama'],
-                'logged_in' => true
+                'logged_in' => true,
+                'ruangan_id' => isset($user['ruangan_id']) ? $user['ruangan_id'] : null
             ]);
             // Redirect sesuai role
             if ($user['role'] == 'admin') {

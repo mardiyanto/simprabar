@@ -36,3 +36,18 @@ $routes->post('barang/store', 'Barang::store');
 $routes->get('barang/edit/(:num)', 'Barang::edit/$1');
 $routes->post('barang/update/(:num)', 'Barang::update/$1');
 $routes->get('barang/delete/(:num)', 'Barang::delete/$1');
+
+$routes->get('tiket', 'Tiket::index');
+$routes->post('tiket/store', 'Tiket::store');
+$routes->get('tiket/edit/(:num)', 'Tiket::edit/$1');
+$routes->post('tiket/update/(:num)', 'Tiket::update/$1');
+$routes->get('tiket/detail/(:num)', 'Tiket::detail/$1');
+$routes->get('tiket/exportExcel', 'Tiket::exportExcel');
+$routes->get('tiket/exportPdf', 'Tiket::exportPdf');
+
+$routes->get('laporan', 'Laporan::index');
+$routes->get('laporan/exportExcel', 'Laporan::exportExcel');
+$routes->get('laporan/exportPdf', 'Laporan::exportPdf');
+
+$routes->get('profile', 'Profile::index');
+$routes->post('profile/update', 'Profile::update');

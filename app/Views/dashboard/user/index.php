@@ -23,7 +23,7 @@
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-bordered align-items-center table-flush">
+                <table class="table table-bordered align-items-center table-flush" id="tabel-user">
                   <thead class="thead-light">
                     <tr>
                       <th>No</th>
@@ -91,6 +91,10 @@ Swal.fire({
 // Tampilkan modal tambah user
 $(document).on('click', '.btn-tambah-user', function() {
   $('#modalTambahUser').modal('show');
+  // Reset form role dan ruangan
+  $('#role_tambah').val('');
+  $('#form_ruangan_tambah').hide();
+  $('#form_ruangan_tambah select').val('');
 });
 // Tampilkan modal edit user dan isi data
 $(document).on('click', '.btn-edit-user', function() {
@@ -99,7 +103,13 @@ $(document).on('click', '.btn-edit-user', function() {
     $('#edit_id').val(data.id);
     $('#edit_username').val(data.username);
     $('#edit_nama').val(data.nama);
-    $('#edit_role').val(data.role);
+    $('#edit_role').val(data.role).trigger('change');
+    if (data.role === 'ruangan') {
+      $('#edit_ruangan_id').val(data.ruangan_id);
+      $('#form_ruangan_edit').show();
+    } else {
+      $('#form_ruangan_edit').hide();
+    }
     $('#formEditUser').attr('action', '<?= base_url('dashboard/user/update') ?>/' + data.id);
     $('#modalEditUser').modal('show');
   });
@@ -123,6 +133,26 @@ $(document).on('click', '.btn-hapus-user', function(e) {
       window.location.href = url;
     }
   });
+});
+
+// Show/hide select ruangan di tambah user
+$('#role_tambah').on('change', function() {
+  if ($(this).val() === 'ruangan') {
+    $('#form_ruangan_tambah').show();
+    $('#form_ruangan_tambah select').attr('required', true);
+  } else {
+    $('#form_ruangan_tambah').hide();
+    $('#form_ruangan_tambah select').removeAttr('required');
+    $('#form_ruangan_tambah select').val('');
+  }
+});
+// Show/hide select ruangan di edit user
+$('#edit_role').on('change', function() {
+  if ($(this).val() === 'ruangan') {
+    $('#form_ruangan_edit').show();
+  } else {
+    $('#form_ruangan_edit').hide();
+  }
 });
 </script>
 
@@ -149,11 +179,20 @@ $(document).on('click', '.btn-hapus-user', function(e) {
           </div>
           <div class="form-group">
             <label>Role</label>
-            <select name="role" class="form-control" required>
+            <select name="role" id="role_tambah" class="form-control" required>
               <option value="">Pilih Role</option>
               <option value="admin">Admin</option>
               <option value="ruangan">Ruangan</option>
               <option value="it">IT</option>
+            </select>
+          </div>
+          <div class="form-group" id="form_ruangan_tambah" style="display:none;">
+            <label>Ruangan</label>
+            <select name="ruangan_id" class="form-control" required style="display:none;">
+              <option value="">Pilih Ruangan</option>
+              <?php foreach ($ruangan as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
+              <?php endforeach; ?>
             </select>
           </div>
           <div class="form-group">
@@ -201,6 +240,15 @@ $(document).on('click', '.btn-hapus-user', function(e) {
               <option value="it">IT</option>
             </select>
           </div>
+          <div class="form-group" id="form_ruangan_edit" style="display:none;">
+            <label>Ruangan</label>
+            <select name="ruangan_id" id="edit_ruangan_id" class="form-control">
+              <option value="">Pilih Ruangan</option>
+              <?php foreach ($ruangan as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
           <div class="form-group">
             <label>Password (kosongkan jika tidak ingin ganti)</label>
             <input type="password" name="password" class="form-control">
@@ -214,3 +262,33 @@ $(document).on('click', '.btn-hapus-user', function(e) {
     </form>
   </div>
 </div>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.css') ?>">
+<!-- DataTables JS -->
+<script src="<?= base_url('argon/assets/js/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+<script>
+$(document).ready(function() {
+  $('#tabel-user').DataTable({
+    stateSave: true,
+    responsive: true,
+    autoWidth: false,
+    scrollX: true,
+    scrollY: 300,
+    scrollCollapse: true,
+    paging: true,
+    info: true,
+    pageLength: 10,
+    lengthMenu: [5, 10, 25, 50, 100],
+    ordering: true,
+    searching: true,
+    language: {
+      paginate: {
+        previous: "<i class='fas fa-angle-left'></i>",
+        next: "<i class='fas fa-angle-right'></i>"
+      }
+    }
+  });
+});
+</script>

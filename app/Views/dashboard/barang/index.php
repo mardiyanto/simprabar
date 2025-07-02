@@ -18,7 +18,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table table-bordered align-items-center table-flush">
+              <table class="table table-bordered align-items-center table-flush" id="tabel-barang">
                 <thead class="thead-light">
                   <tr>
                     <th>No</th>
@@ -194,4 +194,34 @@ $(document).on('click', '.btn-hapus-barang', function(e) {
       </div>
     </form>
   </div>
-</div> 
+</div>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.css') ?>">
+<!-- DataTables JS -->
+<script src="<?= base_url('argon/assets/js/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+<script>
+$(document).ready(function() {
+  $('#tabel-barang').DataTable({
+    stateSave: true,
+    responsive: true,
+    autoWidth: false,
+    scrollX: true,
+    scrollY: 300,
+    scrollCollapse: true,
+    paging: true,
+    info: true,
+    pageLength: 10,
+    lengthMenu: [5, 10, 25, 50, 100],
+    ordering: true,
+    searching: true,
+    language: {
+      paginate: {
+        previous: "<i class='fas fa-angle-left'></i>",
+        next: "<i class='fas fa-angle-right'></i>"
+      }
+    }
+  });
+});
+</script> 

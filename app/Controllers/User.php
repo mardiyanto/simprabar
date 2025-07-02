@@ -16,7 +16,10 @@ class User extends BaseController
         // }
         $userModel = new UserModel();
         $users = $userModel->findAll();
-        return view('dashboard/user/index', ['users' => $users]);
+        // Ambil data ruangan untuk select
+        $ruanganModel = new \App\Models\RuanganModel();
+        $ruangan = $ruanganModel->findAll();
+        return view('dashboard/user/index', ['users' => $users, 'ruangan' => $ruangan]);
     }
 
     public function store()
@@ -34,6 +37,9 @@ class User extends BaseController
             'nama' => $this->request->getPost('nama'),
             'role' => $this->request->getPost('role'),
         ];
+        if ($data['role'] === 'ruangan') {
+            $data['ruangan_id'] = $this->request->getPost('ruangan_id');
+        }
         $password = $this->request->getPost('password');
         if ($password) {
             $data['password'] = password_hash($password, PASSWORD_DEFAULT);
@@ -71,6 +77,11 @@ class User extends BaseController
             'nama' => $this->request->getPost('nama'),
             'role' => $this->request->getPost('role'),
         ];
+        if ($data['role'] === 'ruangan') {
+            $data['ruangan_id'] = $this->request->getPost('ruangan_id');
+        } else {
+            $data['ruangan_id'] = null;
+        }
         $password = $this->request->getPost('password');
         if ($password) {
             $data['password'] = password_hash($password, PASSWORD_DEFAULT);

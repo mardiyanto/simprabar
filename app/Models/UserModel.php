@@ -6,7 +6,7 @@ class UserModel extends Model
 {
     protected $table      = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['username', 'password', 'role', 'nama'];
+    protected $allowedFields = ['username', 'password', 'role', 'nama', 'ruangan_id'];
 
     // Cari user berdasarkan username
     public function findByUsername($username)
