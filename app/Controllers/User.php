@@ -14,12 +14,13 @@ class User extends BaseController
         // if ($session->get('role') !== 'admin') {
         //     return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
         // }
+        $roleFilter = $this->request->getGet('role') ?: 'admin';
         $userModel = new UserModel();
-        $users = $userModel->findAll();
+        $users = $userModel->where('role', $roleFilter)->findAll();
         // Ambil data ruangan untuk select
         $ruanganModel = new \App\Models\RuanganModel();
         $ruangan = $ruanganModel->findAll();
-        return view('dashboard/user/index', ['users' => $users, 'ruangan' => $ruangan]);
+        return view('dashboard/user/index', ['users' => $users, 'ruangan' => $ruangan, 'roleFilter' => $roleFilter]);
     }
 
     public function store()

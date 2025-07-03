@@ -18,9 +18,23 @@
             <div class="card-header border-0 d-flex justify-content-between align-items-center">
               <h3 class="mb-0">Daftar User</h3>
               <?php if (session('role') === 'admin'): ?>
-                <a href="#" class="btn btn-primary btn-tambah-user">Tambah User</a>
+                <div>
+                  <a href="#" class="btn btn-primary btn-tambah-user-adminit mr-2">Tambah User Admin/IT</a>
+                  <a href="#" class="btn btn-success btn-tambah-user-ruangan">Tambah User Ruangan</a>
+                </div>
               <?php endif; ?>
             </div>
+            <ul class="nav nav-tabs mb-3">
+              <li class="nav-item">
+                <a class="nav-link <?= $roleFilter=='admin'?'active':'' ?>" href="?role=admin">Admin</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <?= $roleFilter=='it'?'active':'' ?>" href="?role=it">IT</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link <?= $roleFilter=='ruangan'?'active':'' ?>" href="?role=ruangan">Ruangan</a>
+              </li>
+            </ul>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered align-items-center table-flush" id="tabel-user">
@@ -88,13 +102,13 @@ Swal.fire({
 });
 <?php endif; ?>
 
-// Tampilkan modal tambah user
-$(document).on('click', '.btn-tambah-user', function() {
-  $('#modalTambahUser').modal('show');
-  // Reset form role dan ruangan
-  $('#role_tambah').val('');
-  $('#form_ruangan_tambah').hide();
-  $('#form_ruangan_tambah select').val('');
+// Tampilkan modal tambah user admin/it
+$(document).on('click', '.btn-tambah-user-adminit', function() {
+  $('#modalTambahUserAdminIT').modal('show');
+});
+// Tampilkan modal tambah user ruangan
+$(document).on('click', '.btn-tambah-user-ruangan', function() {
+  $('#modalTambahUserRuangan').modal('show');
 });
 // Tampilkan modal edit user dan isi data
 $(document).on('click', '.btn-edit-user', function() {
@@ -135,17 +149,6 @@ $(document).on('click', '.btn-hapus-user', function(e) {
   });
 });
 
-// Show/hide select ruangan di tambah user
-$('#role_tambah').on('change', function() {
-  if ($(this).val() === 'ruangan') {
-    $('#form_ruangan_tambah').show();
-    $('#form_ruangan_tambah select').attr('required', true);
-  } else {
-    $('#form_ruangan_tambah').hide();
-    $('#form_ruangan_tambah select').removeAttr('required');
-    $('#form_ruangan_tambah select').val('');
-  }
-});
 // Show/hide select ruangan di edit user
 $('#edit_role').on('change', function() {
   if ($(this).val() === 'ruangan') {
@@ -156,14 +159,14 @@ $('#edit_role').on('change', function() {
 });
 </script>
 
-<!-- Modal Tambah User -->
-<div class="modal fade" id="modalTambahUser" tabindex="-1" role="dialog" aria-labelledby="modalTambahUserLabel" aria-hidden="true">
+<!-- Modal Tambah User Admin/IT -->
+<div class="modal fade" id="modalTambahUserAdminIT" tabindex="-1" role="dialog" aria-labelledby="modalTambahUserAdminITLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <form method="post" action="<?= base_url('dashboard/user/store') ?>">
       <?= csrf_field() ?>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalTambahUserLabel">Tambah User</h5>
+          <h5 class="modal-title" id="modalTambahUserAdminITLabel">Tambah User Admin/IT</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -179,16 +182,51 @@ $('#edit_role').on('change', function() {
           </div>
           <div class="form-group">
             <label>Role</label>
-            <select name="role" id="role_tambah" class="form-control" required>
+            <select name="role" class="form-control" required>
               <option value="">Pilih Role</option>
               <option value="admin">Admin</option>
-              <option value="ruangan">Ruangan</option>
               <option value="it">IT</option>
             </select>
           </div>
-          <div class="form-group" id="form_ruangan_tambah" style="display:none;">
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Tambah User Ruangan -->
+<div class="modal fade" id="modalTambahUserRuangan" tabindex="-1" role="dialog" aria-labelledby="modalTambahUserRuanganLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="post" action="<?= base_url('dashboard/user/store') ?>">
+      <?= csrf_field() ?>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahUserRuanganLabel">Tambah User Ruangan</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Nama</label>
+            <input type="text" name="nama" class="form-control" required>
+          </div>
+          <input type="hidden" name="role" value="ruangan">
+          <div class="form-group">
             <label>Ruangan</label>
-            <select name="ruangan_id" class="form-control" required style="display:none;">
+            <select name="ruangan_id" class="form-control" required>
               <option value="">Pilih Ruangan</option>
               <?php foreach ($ruangan as $r): ?>
                 <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
@@ -202,7 +240,7 @@ $('#edit_role').on('change', function() {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="submit" class="btn btn-success">Simpan</button>
         </div>
       </div>
     </form>
