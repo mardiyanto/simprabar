@@ -32,7 +32,14 @@ class Tiket extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
-        $ruangan = $ruanganModel->findAll();
+        if ($role === 'admin' || $role === 'it') {
+            $ruangan = $ruanganModel->findAll();
+        } else if ($role === 'ruangan') {
+            $ruangan_id = $session->get('ruangan_id');
+            $ruangan = $ruanganModel->where('id', $ruangan_id)->findAll();
+        } else {
+            $ruangan = [];
+        }
         $barang = $barangModel->findAll();
         return view('dashboard/tiket/index', [
             'tiket' => $tiket,
@@ -227,5 +234,80 @@ class Tiket extends BaseController
         $filepath = FCPATH . 'uploads/' . $filename;
         file_put_contents($filepath, $data);
         return $filename;
+    }
+
+    public function delete($id)
+    {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        $tiketModel = new TiketModel();
+        $tiket = $tiketModel->find($id);
+        $role = $session->get('role');
+        // Hanya admin/it/ruangan pemilik tiket yang boleh hapus
+        if ($role === 'admin' || $role === 'it' || ($role === 'ruangan' && $tiket['ruangan_id'] == $session->get('ruangan_id'))) {
+            $tiketModel->delete($id);
+            return redirect()->to('/tiket')->with('success', 'Tiket berhasil dihapus.');
+        } else {
+            return redirect()->to('/tiket')->with('error', 'Tidak diizinkan menghapus tiket ini.');
+        }
+    }
+
+    // Form edit data tiket (bukan update status)
+    public function editData($id)
+    {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        $tiketModel = new TiketModel();
+        $ruanganModel = new RuanganModel();
+        $barangModel = new BarangModel();
+        $tiket = $tiketModel->find($id);
+        $role = $session->get('role');
+        // Hanya admin/it/ruangan pemilik tiket yang boleh edit jika status masih Menunggu
+        if (($role === 'admin' || $role === 'it' || ($role === 'ruangan' && $tiket['ruangan_id'] == $session->get('ruangan_id'))) && $tiket['status'] === 'Menunggu') {
+            $ruangan = ($role === 'admin' || $role === 'it') ? $ruanganModel->findAll() : $ruanganModel->where('id', $session->get('ruangan_id'))->findAll();
+            $barang = $barangModel->findAll();
+            return view('dashboard/tiket/edit', [
+                'tiket' => $tiket,
+                'ruangan' => $ruangan,
+                'barang' => $barang,
+                'role' => $role
+            ]);
+        } else {
+            return redirect()->to('/tiket')->with('error', 'Tidak diizinkan mengedit tiket ini.');
+        }
+    }
+
+    // Update data tiket (bukan status)
+    public function updateData($id)
+    {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        $tiketModel = new TiketModel();
+        $tiket = $tiketModel->find($id);
+        $role = $session->get('role');
+        if (($role === 'admin' || $role === 'it' || ($role === 'ruangan' && $tiket['ruangan_id'] == $session->get('ruangan_id'))) && $tiket['status'] === 'Menunggu') {
+            $data = [
+                'ruangan_id' => $this->request->getPost('ruangan_id'),
+                'barang_id' => $this->request->getPost('barang_id'),
+                'deskripsi_kerusakan' => $this->request->getPost('deskripsi_kerusakan'),
+            ];
+            $tiketModel->update($id, $data);
+            return redirect()->to('/tiket')->with('success', 'Data tiket berhasil diupdate.');
+        } else {
+            return redirect()->to('/tiket')->with('error', 'Tidak diizinkan mengedit tiket ini.');
+        }
+    }
+
+    public function getBarangByRuangan($ruangan_id)
+    {
+        $barangModel = new BarangModel();
+        $barang = $barangModel->where('ruangan_id', $ruangan_id)->findAll();
+        return $this->response->setJSON($barang);
     }
 } 

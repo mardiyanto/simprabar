@@ -12,7 +12,7 @@
         <div class="card shadow">
           <div class="card-header border-0 d-flex justify-content-between align-items-center">
             <h3 class="mb-0">Daftar Tiket</h3>
-            <?php if ($role === 'ruangan'): ?>
+            <?php if ($role === 'ruangan' || $role === 'admin' || $role === 'it'): ?>
               <a href="#" class="btn btn-primary btn-tambah-tiket">Buat Tiket</a>
             <?php endif; ?>
           </div>
@@ -59,6 +59,10 @@
                           <a href="<?= base_url('tiket/detail/'.$t['id']) ?>" class="btn btn-info btn-sm">Detail</a>
                           <?php if ($role === 'it' || $role === 'admin'): ?>
                             <a href="#" class="btn btn-warning btn-sm btn-edit-tiket" data-id="<?= $t['id'] ?>">Update Status</a>
+                          <?php endif; ?>
+                          <?php if ((($role === 'admin' || $role === 'it') || ($role === 'ruangan' && $t['ruangan_id'] == session('ruangan_id'))) && $t['status'] === 'Menunggu'): ?>
+                            <a href="<?= base_url('tiket/editData/'.$t['id']) ?>" class="btn btn-success btn-sm" target="_blank">Edit</a>
+                            <a href="#" class="btn btn-danger btn-sm btn-hapus-tiket" data-url="<?= base_url('tiket/delete/'.$t['id']) ?>">Hapus</a>
                           <?php endif; ?>
                         </td>
                       </tr>
@@ -444,6 +448,44 @@ $(document).ready(function() {
       }
     }
   });
+});
+// Tambahkan JS konfirmasi hapus tiket
+$(document).on('click', '.btn-hapus-tiket', function(e) {
+  e.preventDefault();
+  var url = $(this).data('url');
+  Swal.fire({
+    title: 'Yakin hapus tiket ini?',
+    text: 'Aksi ini tidak bisa dibatalkan!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = url;
+    }
+  });
+});
+// Update barang saat ruangan dipilih (modal tambah tiket)
+$('#modalTambahTiket').on('change', 'select[name=ruangan_id]', function() {
+  var ruanganId = $(this).val();
+  var barangSelect = $('#modalTambahTiket select[name=barang_id]');
+  barangSelect.html('<option value="">Memuat...</option>');
+  if(ruanganId) {
+    $.get('<?= base_url('tiket/getBarangByRuangan') ?>/' + ruanganId, function(data) {
+      var html = '<option value="">Pilih Barang</option>';
+      if(data.length > 0) {
+        data.forEach(function(b) {
+          html += '<option value="'+b.id+'">'+b.nama_barang+'</option>';
+        });
+      }
+      barangSelect.html(html);
+    });
+  } else {
+    barangSelect.html('<option value="">Pilih Barang</option>');
+  }
 });
 </script>
 <!-- DataTables CSS -->

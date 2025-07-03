@@ -44,6 +44,10 @@ $routes->post('tiket/update/(:num)', 'Tiket::update/$1');
 $routes->get('tiket/detail/(:num)', 'Tiket::detail/$1');
 $routes->get('tiket/exportExcel', 'Tiket::exportExcel');
 $routes->get('tiket/exportPdf', 'Tiket::exportPdf');
+$routes->get('tiket/delete/(:num)', 'Tiket::delete/$1');
+$routes->get('tiket/editData/(:num)', 'Tiket::editData/$1');
+$routes->post('tiket/updateData/(:num)', 'Tiket::updateData/$1');
+$routes->get('tiket/getBarangByRuangan/(:num)', 'Tiket::getBarangByRuangan/$1');
 
 $routes->get('laporan', 'Laporan::index');
 $routes->get('laporan/exportExcel', 'Laporan::exportExcel');
