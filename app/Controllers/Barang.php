@@ -88,4 +88,41 @@ class Barang extends BaseController
         $barangModel->delete($id);
         return redirect()->to('/barang')->with('success', 'Barang berhasil dihapus.');
     }
+
+    public function storeBulk()
+    {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        if ($session->get('role') !== 'admin') {
+            return redirect()->to('/dashboard/' . $session->get('role'))->with('error', 'Anda tidak punya akses ke halaman ini.');
+        }
+        $ruangan_id = $this->request->getPost('ruangan_id');
+        $nama_barang = $this->request->getPost('nama_barang');
+        $deskripsi_barang = $this->request->getPost('deskripsi_barang');
+        // Validasi
+        if (!$ruangan_id || !is_array($nama_barang) || !is_array($deskripsi_barang)) {
+            return redirect()->to('/barang')->with('error', 'Data tidak lengkap.');
+        }
+        $barangModel = new \App\Models\BarangModel();
+        $dataInsert = [];
+        foreach ($nama_barang as $i => $nama) {
+            $nama = trim($nama);
+            $deskripsi = isset($deskripsi_barang[$i]) ? trim($deskripsi_barang[$i]) : '';
+            if ($nama === '' || $deskripsi === '') {
+                return redirect()->to('/barang')->with('error', 'Semua field harus diisi.');
+            }
+            $dataInsert[] = [
+                'nama_barang' => $nama,
+                'deskripsi_barang' => $deskripsi,
+                'ruangan_id' => $ruangan_id
+            ];
+        }
+        // Insert semua data
+        foreach ($dataInsert as $row) {
+            $barangModel->insert($row);
+        }
+        return redirect()->to('/barang')->with('success', 'Semua barang berhasil ditambahkan.');
+    }
 } 

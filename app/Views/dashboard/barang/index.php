@@ -13,7 +13,10 @@
           <div class="card-header border-0 d-flex justify-content-between align-items-center">
             <h3 class="mb-0">Daftar Barang</h3>
             <?php if (session('role') === 'admin'): ?>
-              <a href="#" class="btn btn-primary btn-tambah-barang">Tambah Barang</a>
+              <div>
+                <a href="#" class="btn btn-primary btn-tambah-barang mr-2">Tambah Barang</a>
+                <a href="#" class="btn btn-success btn-tambah-banyak-barang">Tambah Banyak Barang</a>
+              </div>
             <?php endif; ?>
           </div>
           <div class="card-body">
@@ -36,6 +39,7 @@
                         <td><?= esc($b['nama_ruangan']) ?></td>
                         <td>
                           <?php if (session('role') === 'admin'): ?>
+                            <a href="#" class="btn btn-sm btn-info btn-copy-barang" data-id="<?= $b['id'] ?>">Copy</a>
                             <a href="#" class="btn btn-sm btn-warning btn-edit-barang" data-id="<?= $b['id'] ?>">Edit</a>
                             <a href="<?= base_url('barang/delete') ?>/<?= $b['id'] ?>" class="btn btn-sm btn-danger btn-hapus-barang">Hapus</a>
                           <?php endif; ?>
@@ -58,7 +62,45 @@
 <?= $this->include('dashboard/jsadmin') ?>
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.css') ?>">
+<link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/select2/dist/css/select2.min.css') ?>">
+<!-- DataTables JS -->
+<script src="<?= base_url('argon/assets/js/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+<script src="<?= base_url('argon/assets/js/plugins/select2/dist/js/select2.min.js') ?>"></script>
 <script>
+$(document).ready(function() {
+  $('#tabel-barang').DataTable({
+    stateSave: true,
+    responsive: true,
+    autoWidth: false,
+    scrollX: true,
+    scrollY: 300,
+    scrollCollapse: true,
+    paging: true,
+    info: true,
+    pageLength: 10,
+    lengthMenu: [5, 10, 25, 50, 100],
+    ordering: true,
+    searching: true,
+    language: {
+      paginate: {
+        previous: "<i class='fas fa-angle-left'></i>",
+        next: "<i class='fas fa-angle-right'></i>"
+      }
+    }
+  });
+});
+// Select2
+$(document).ready(function() {
+  $('.select2').select2({
+    placeholder: "Pilih Data",
+    allowClear: true
+  });
+});
+
 // Notifikasi SweetAlert2 dari flashdata
 <?php if (session()->getFlashdata('success')): ?>
 Swal.fire({
@@ -80,6 +122,10 @@ Swal.fire({
 <?php endif; ?>
 // Tampilkan modal tambah barang
 $(document).on('click', '.btn-tambah-barang', function() {
+  // Reset form
+  $('#modalTambahBarang input[name=nama_barang]').val('');
+  $('#modalTambahBarang textarea[name=deskripsi_barang]').val('');
+  $('#modalTambahBarang select[name=ruangan_id]').val('');
   $('#modalTambahBarang').modal('show');
 });
 // Tampilkan modal edit barang dan isi data
@@ -113,6 +159,66 @@ $(document).on('click', '.btn-hapus-barang', function(e) {
     }
   });
 });
+// Fitur Copy Barang
+$(document).on('click', '.btn-copy-barang', function() {
+  var id = $(this).data('id');
+  $.get('<?= base_url('barang/edit') ?>/' + id, function(data) {
+    // Isi form tambah barang dengan data yang di-copy
+    $('#modalTambahBarang input[name=nama_barang]').val(data.nama_barang);
+    $('#modalTambahBarang textarea[name=deskripsi_barang]').val(data.deskripsi_barang);
+    $('#modalTambahBarang select[name=ruangan_id]').val(''); // Kosongkan ruangan, wajib pilih
+    $('#modalTambahBarang').modal('show');
+  });
+});
+// Tampilkan modal tambah banyak barang
+$(document).on('click', '.btn-tambah-banyak-barang', function() {
+  // Reset form
+  $('#modalTambahBanyakBarang select[name=ruangan_id]').val('');
+  var tbody = $('#tabel-banyak-barang tbody');
+  tbody.html('');
+  tbody.append('<tr>\
+    <td><input type="text" name="nama_barang[]" class="form-control" required></td>\
+    <td><input type="text" name="deskripsi_barang[]" class="form-control" required></td>\
+    <td><button type="button" class="btn btn-danger btn-hapus-baris"><i class="fa fa-trash"></i></button></td>\
+  </tr>');
+  $('#modalTambahBanyakBarang').modal('show');
+});
+// Tambah baris input barang
+$(document).on('click', '.btn-tambah-baris', function() {
+  $('#tabel-banyak-barang tbody').append('<tr>\
+    <td><input type="text" name="nama_barang[]" class="form-control" required></td>\
+    <td><input type="text" name="deskripsi_barang[]" class="form-control" required></td>\
+    <td><button type="button" class="btn btn-danger btn-hapus-baris"><i class="fa fa-trash"></i></button></td>\
+  </tr>');
+});
+// Hapus baris input barang
+$(document).on('click', '.btn-hapus-baris', function() {
+  if ($('#tabel-banyak-barang tbody tr').length > 1) {
+    $(this).closest('tr').remove();
+  }
+});
+// Inisialisasi Select2 hanya saat modal dibuka
+$('#modalTambahBarang').on('shown.bs.modal', function () {
+  $(this).find('.select2-ruangan').select2({
+    dropdownParent: $('#modalTambahBarang'),
+    placeholder: "Pilih Ruangan",
+    allowClear: true
+  });
+});
+$('#modalEditBarang').on('shown.bs.modal', function () {
+  $(this).find('.select2-ruangan').select2({
+    dropdownParent: $('#modalEditBarang'),
+    placeholder: "Pilih Ruangan",
+    allowClear: true
+  });
+});
+$('#modalTambahBanyakBarang').on('shown.bs.modal', function () {
+  $(this).find('.select2-ruangan').select2({
+    dropdownParent: $('#modalTambahBanyakBarang'),
+    placeholder: "Pilih Ruangan",
+    allowClear: true
+  });
+});
 </script>
 
 <!-- Modal Tambah Barang -->
@@ -134,7 +240,7 @@ $(document).on('click', '.btn-hapus-barang', function(e) {
           </div>
           <div class="form-group">
             <label>Ruangan</label>
-            <select name="ruangan_id" class="form-control" required>
+            <select name="ruangan_id" class="form-control select2-ruangan" required>
               <option value="">Pilih Ruangan</option>
               <?php foreach ($ruangan as $r): ?>
                 <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
@@ -175,7 +281,7 @@ $(document).on('click', '.btn-hapus-barang', function(e) {
           </div>
           <div class="form-group">
             <label>Ruangan</label>
-            <select name="ruangan_id" id="edit_ruangan_id" class="form-control" required>
+            <select name="ruangan_id" id="edit_ruangan_id" class="form-control select2-ruangan" required>
               <option value="">Pilih Ruangan</option>
               <?php foreach ($ruangan as $r): ?>
                 <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
@@ -196,32 +302,53 @@ $(document).on('click', '.btn-hapus-barang', function(e) {
   </div>
 </div>
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.css') ?>">
-<!-- DataTables JS -->
-<script src="<?= base_url('argon/assets/js/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.js') ?>"></script>
-<script>
-$(document).ready(function() {
-  $('#tabel-barang').DataTable({
-    stateSave: true,
-    responsive: true,
-    autoWidth: false,
-    scrollX: true,
-    scrollY: 300,
-    scrollCollapse: true,
-    paging: true,
-    info: true,
-    pageLength: 10,
-    lengthMenu: [5, 10, 25, 50, 100],
-    ordering: true,
-    searching: true,
-    language: {
-      paginate: {
-        previous: "<i class='fas fa-angle-left'></i>",
-        next: "<i class='fas fa-angle-right'></i>"
-      }
-    }
-  });
-});
-</script> 
+<!-- Modal Tambah Banyak Barang -->
+<div class="modal fade" id="modalTambahBanyakBarang" tabindex="-1" role="dialog" aria-labelledby="modalTambahBanyakBarangLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <form method="post" action="<?= base_url('barang/storeBulk') ?>">
+      <?= csrf_field() ?>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahBanyakBarangLabel">Tambah Banyak Barang</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Ruangan</label>
+            <select name="ruangan_id" class="form-control select2-ruangan" required>
+              <option value="">Pilih Ruangan</option>
+              <?php foreach ($ruangan as $r): ?>
+                <option value="<?= $r['id'] ?>"><?= esc($r['nama_ruangan']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered" id="tabel-banyak-barang">
+              <thead>
+                <tr>
+                  <th>Nama Barang</th>
+                  <th>Deskripsi Barang</th>
+                  <th style="width:40px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="text" name="nama_barang[]" class="form-control" required></td>
+                  <td><input type="text" name="deskripsi_barang[]" class="form-control" required></td>
+                  <td><button type="button" class="btn btn-danger btn-hapus-baris"><i class="fa fa-trash"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-info btn-tambah-baris"><i class="fa fa-plus"></i> Tambah Baris</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-success">Simpan Semua</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
