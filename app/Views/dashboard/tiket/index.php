@@ -130,6 +130,7 @@
             </div>
             <div id="kamera_container" style="display:none;">
               <video id="video_kerusakan" width="320" height="240" autoplay style="border:1px solid #ccc;"></video>
+              <button type="button" class="btn btn-secondary btn-camera-flip" id="camera_flip_kerusakan" style="margin-top:5px;display:none;"><span class="material-icons">cameraswitch</span> Flip Kamera</button>
               <button type="button" class="btn btn-sm btn-primary mt-2" id="ambil_foto_kerusakan">Ambil Foto</button>
               <canvas id="canvas_kerusakan" width="320" height="240" style="display:none;"></canvas>
               <img id="preview_foto_kerusakan_camera" src="#" alt="Preview Foto" style="display:none;max-width:200px;max-height:200px;margin-top:10px;"/>
@@ -194,6 +195,7 @@
             </div>
             <div id="kamera_container_perbaikan" style="display:none;">
               <video id="video_perbaikan" width="320" height="240" autoplay style="border:1px solid #ccc;"></video>
+              <button type="button" class="btn btn-secondary btn-camera-flip" id="camera_flip_perbaikan" style="margin-top:5px;display:none;"><span class="material-icons">cameraswitch</span> Flip Kamera</button>
               <button type="button" class="btn btn-sm btn-primary mt-2" id="ambil_foto_perbaikan">Ambil Foto</button>
               <canvas id="canvas_perbaikan" width="320" height="240" style="display:none;"></canvas>
               <img id="preview_foto_perbaikan_camera" src="#" alt="Preview Foto" style="display:none;max-width:200px;max-height:200px;margin-top:10px;"/>
@@ -301,26 +303,19 @@ $('#pilih_foto_kerusakan').on('change', function() {
   if ($(this).val() === 'kamera') {
     $('#dropzone-foto-kerusakan').hide();
     $('#kamera_container').show();
-    // Start webcam
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-        $('#video_kerusakan')[0].srcObject = stream;
-        $('#video_kerusakan')[0].play();
-      });
-    }
+    facingModeKerusakan = "environment";
+    startCameraKerusakan();
   } else {
     $('#dropzone-foto-kerusakan').show();
     $('#kamera_container').hide();
-    // Stop webcam
-    let video = $('#video_kerusakan')[0];
-    if (video && video.srcObject) {
-      let tracks = video.srcObject.getTracks();
-      tracks.forEach(track => track.stop());
-      video.srcObject = null;
+    if (streamKerusakan) {
+      streamKerusakan.getTracks().forEach(track => track.stop());
+      streamKerusakan = null;
     }
     $('#preview_foto_kerusakan_camera').hide();
     $('#canvas_kerusakan').hide();
     $('#foto_kerusakan_camera').val('');
+    $('#camera_flip_kerusakan').hide();
   }
 });
 // Ambil foto dari kamera
@@ -390,24 +385,19 @@ $('#pilih_foto_perbaikan').on('change', function() {
   if ($(this).val() === 'kamera') {
     $('#dropzone-foto-perbaikan').hide();
     $('#kamera_container_perbaikan').show();
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-        $('#video_perbaikan')[0].srcObject = stream;
-        $('#video_perbaikan')[0].play();
-      });
-    }
+    facingModePerbaikan = "environment";
+    startCameraPerbaikan();
   } else {
     $('#dropzone-foto-perbaikan').show();
     $('#kamera_container_perbaikan').hide();
-    let video = $('#video_perbaikan')[0];
-    if (video && video.srcObject) {
-      let tracks = video.srcObject.getTracks();
-      tracks.forEach(track => track.stop());
-      video.srcObject = null;
+    if (streamPerbaikan) {
+      streamPerbaikan.getTracks().forEach(track => track.stop());
+      streamPerbaikan = null;
     }
     $('#preview_foto_perbaikan_camera').hide();
     $('#canvas_perbaikan').hide();
     $('#foto_perbaikan_camera').val('');
+    $('#camera_flip_perbaikan').hide();
   }
 });
 $('#ambil_foto_perbaikan').on('click', function() {
@@ -487,9 +477,55 @@ $('#modalTambahTiket').on('change', 'select[name=ruangan_id]', function() {
     barangSelect.html('<option value="">Pilih Barang</option>');
   }
 });
+// Tambah logic cameraFlip untuk kerusakan
+let facingModeKerusakan = "environment";
+let streamKerusakan = null;
+function startCameraKerusakan() {
+  if (streamKerusakan) {
+    streamKerusakan.getTracks().forEach(track => track.stop());
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: facingModeKerusakan } })
+    .then(function(stream) {
+      streamKerusakan = stream;
+      $('#video_kerusakan')[0].srcObject = stream;
+      $('#camera_flip_kerusakan').show();
+    })
+    .catch(function(err) {
+      $('#camera_flip_kerusakan').hide();
+      Swal.fire({icon:'error',title:'Gagal',text:'Tidak bisa mengakses kamera: '+err.message});
+    });
+}
+$('#camera_flip_kerusakan').on('click', function() {
+  facingModeKerusakan = (facingModeKerusakan === "environment") ? "user" : "environment";
+  startCameraKerusakan();
+});
+// Tambah logic cameraFlip untuk perbaikan
+let facingModePerbaikan = "environment";
+let streamPerbaikan = null;
+function startCameraPerbaikan() {
+  if (streamPerbaikan) {
+    streamPerbaikan.getTracks().forEach(track => track.stop());
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: facingModePerbaikan } })
+    .then(function(stream) {
+      streamPerbaikan = stream;
+      $('#video_perbaikan')[0].srcObject = stream;
+      $('#camera_flip_perbaikan').show();
+    })
+    .catch(function(err) {
+      $('#camera_flip_perbaikan').hide();
+      Swal.fire({icon:'error',title:'Gagal',text:'Tidak bisa mengakses kamera: '+err.message});
+    });
+}
+$('#camera_flip_perbaikan').on('click', function() {
+  facingModePerbaikan = (facingModePerbaikan === "environment") ? "user" : "environment";
+  startCameraPerbaikan();
+});
 </script>
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.css') ?>">
 <!-- DataTables JS -->
 <script src="<?= base_url('argon/assets/js/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('argon/assets/js/plugins/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+<!-- Material Icons untuk tombol flip kamera -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
