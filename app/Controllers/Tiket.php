@@ -32,6 +32,19 @@ class Tiket extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         if ($role === 'admin' || $role === 'it') {
             $ruangan = $ruanganModel->findAll();
         } else if ($role === 'ruangan') {
@@ -58,8 +71,8 @@ class Tiket extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
         $tiketModel = new TiketModel();
-        // Generate nomor tiket otomatis
-        $nomor_tiket = 'TIK' . date('Ymd') . sprintf('%03d', $tiketModel->countAll() + 1);
+        // Generate nomor tiket otomatis menggunakan tanggal dan waktu per detik
+        $nomor_tiket = 'TIK' . date('YmdHis'); // Format: TIK + YYYYMMDD + HHMMSS
         $data = [
             'nomor_tiket' => $nomor_tiket,
             'ruangan_id' => $this->request->getPost('ruangan_id'),
@@ -69,6 +82,14 @@ class Tiket extends BaseController
             'hasil_perbaikan' => null,
             'created_at' => date('Y-m-d H:i:s'),
         ];
+        // Jika admin, cek input created_at_manual
+        if ($session->get('role') === 'admin') {
+            $created_at_manual = $this->request->getPost('created_at_manual');
+            if ($created_at_manual) {
+                // Format dari input: 2024-07-01T13:00
+                $data['created_at'] = date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $created_at_manual)));
+            }
+        }
         // Handle upload foto kerusakan
         $foto = $this->request->getFile('foto_kerusakan');
         $foto_base64 = $this->request->getPost('foto_kerusakan_camera');
@@ -108,6 +129,13 @@ class Tiket extends BaseController
             'hasil_perbaikan' => $this->request->getPost('hasil_perbaikan'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        // Jika admin, cek input updated_at_manual
+        if ($session->get('role') === 'admin') {
+            $updated_at_manual = $this->request->getPost('updated_at_manual');
+            if ($updated_at_manual) {
+                $data['updated_at'] = date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $updated_at_manual)));
+            }
+        }
         // Handle upload foto perbaikan
         $foto = $this->request->getFile('foto_perbaikan');
         $foto_base64 = $this->request->getPost('foto_perbaikan_camera');
@@ -136,6 +164,17 @@ class Tiket extends BaseController
             ->join('barang', 'barang.id = tiket.barang_id', 'left')
             ->where('tiket.id', $id)
             ->first();
+            
+        // Hitung durasi untuk tiket ini
+        if ($tiket['updated_at'] && $tiket['status'] !== 'Menunggu') {
+            $created = new \DateTime($tiket['created_at']);
+            $updated = new \DateTime($tiket['updated_at']);
+            $interval = $created->diff($updated);
+            $tiket['durasi'] = $interval->format('%d hari %h jam %i menit');
+        } else {
+            $tiket['durasi'] = '-';
+        }
+        
         return view('dashboard/tiket/detail', [
             'tiket' => $tiket
         ]);
@@ -162,6 +201,19 @@ class Tiket extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         // Excel
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -172,7 +224,9 @@ class Tiket extends BaseController
         $sheet->setCellValue('E1', 'Deskripsi Kerusakan');
         $sheet->setCellValue('F1', 'Status');
         $sheet->setCellValue('G1', 'Hasil');
-        $sheet->setCellValue('H1', 'Tanggal');
+        $sheet->setCellValue('H1', 'Waktu Dibuat');
+        $sheet->setCellValue('I1', 'Waktu Selesai');
+        $sheet->setCellValue('J1', 'Durasi Penanganan');
         $row = 2;
         foreach ($tiket as $i => $t) {
             $sheet->setCellValue('A'.$row, $i+1);
@@ -183,6 +237,8 @@ class Tiket extends BaseController
             $sheet->setCellValue('F'.$row, $t['status']);
             $sheet->setCellValue('G'.$row, $t['hasil_perbaikan']);
             $sheet->setCellValue('H'.$row, $t['created_at']);
+            $sheet->setCellValue('I'.$row, $t['updated_at'] ?: '-');
+            $sheet->setCellValue('J'.$row, $t['durasi']);
             $row++;
         }
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
@@ -215,6 +271,19 @@ class Tiket extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         // PDF
         $html = view('dashboard/tiket/pdf', ['tiket' => $tiket]);
         $dompdf = new \Dompdf\Dompdf();

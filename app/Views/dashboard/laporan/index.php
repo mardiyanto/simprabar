@@ -108,7 +108,9 @@
                     <th>Deskripsi Kerusakan</th>
                     <th>Status</th>
                     <th>Hasil</th>
-                    <th>Tanggal</th>
+                    <th>Waktu Dibuat</th>
+                    <th>Waktu Selesai</th>
+                    <th>Durasi Penanganan</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -123,10 +125,12 @@
                         <td><?= esc($t['status']) ?></td>
                         <td><?= esc($t['hasil_perbaikan']) ?></td>
                         <td><?= esc($t['created_at']) ?></td>
+                        <td><?= esc($t['updated_at'] ?: '-') ?></td>
+                        <td><?= esc($t['durasi']) ?></td>
                       </tr>
                     <?php endforeach; ?>
                   <?php else: ?>
-                    <tr><td colspan="8" class="text-center">Tidak ada data tiket.</td></tr>
+                    <tr><td colspan="10" class="text-center">Tidak ada data tiket.</td></tr>
                   <?php endif; ?>
                 </tbody>
               </table>

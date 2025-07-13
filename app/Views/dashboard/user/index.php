@@ -39,36 +39,36 @@
               <div class="table-responsive">
                 <table class="table table-bordered align-items-center table-flush" id="tabel-user">
                   <thead class="thead-light">
+            <tr>
+                <th>No</th>
+                <th>Username</th>
+                <th>Nama</th>
+                <th>Role</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($users)): ?>
+                <?php $no = 1; foreach ($users as $user): ?>
                     <tr>
-                      <th>No</th>
-                      <th>Username</th>
-                      <th>Nama</th>
-                      <th>Role</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php if (!empty($users)): ?>
-                      <?php $no = 1; foreach ($users as $user): ?>
-                        <tr>
-                          <td><?= $no++ ?></td>
-                          <td><?= esc($user['username']) ?></td>
-                          <td><?= esc($user['nama']) ?></td>
-                          <td><?= esc($user['role']) ?></td>
-                          <td>
+                        <td><?= $no++ ?></td>
+                        <td><?= esc($user['username']) ?></td>
+                        <td><?= esc($user['nama']) ?></td>
+                        <td><?= esc($user['role']) ?></td>
+                        <td>
                             <?php if (session('role') === 'admin'): ?>
                               <a href="#" class="btn btn-sm btn-warning btn-edit-user" data-id="<?= $user['id'] ?>">Edit</a>
                               <a href="<?= base_url('dashboard/user/delete') ?>/<?= $user['id'] ?>" class="btn btn-sm btn-danger btn-hapus-user">Hapus</a>
                             <?php endif; ?>
-                          </td>
-                        </tr>
-                      <?php endforeach; ?>
-                    <?php else: ?>
-                      <tr><td colspan="5" class="text-center">Tidak ada data user.</td></tr>
-                    <?php endif; ?>
-                  </tbody>
-                </table>
-              </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="5" class="text-center">Tidak ada data user.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div> 
             </div>
           </div>
         </div>

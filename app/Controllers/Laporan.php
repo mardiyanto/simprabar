@@ -37,6 +37,19 @@ class Laporan extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         // Statistik
         $stat = [
             'menunggu' => $tiketModel->where('status', 'Menunggu')->countAllResults(),
@@ -85,6 +98,19 @@ class Laporan extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         // Excel
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -95,7 +121,9 @@ class Laporan extends BaseController
         $sheet->setCellValue('E1', 'Deskripsi Kerusakan');
         $sheet->setCellValue('F1', 'Status');
         $sheet->setCellValue('G1', 'Hasil');
-        $sheet->setCellValue('H1', 'Tanggal');
+        $sheet->setCellValue('H1', 'Waktu Dibuat');
+        $sheet->setCellValue('I1', 'Waktu Selesai');
+        $sheet->setCellValue('J1', 'Durasi Penanganan');
         $row = 2;
         foreach ($tiket as $i => $t) {
             $sheet->setCellValue('A'.$row, $i+1);
@@ -106,6 +134,8 @@ class Laporan extends BaseController
             $sheet->setCellValue('F'.$row, $t['status']);
             $sheet->setCellValue('G'.$row, $t['hasil_perbaikan']);
             $sheet->setCellValue('H'.$row, $t['created_at']);
+            $sheet->setCellValue('I'.$row, $t['updated_at'] ?: '-');
+            $sheet->setCellValue('J'.$row, $t['durasi']);
             $row++;
         }
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
@@ -146,6 +176,19 @@ class Laporan extends BaseController
             $builder->where('tiket.created_at <=', $tanggal_akhir.' 23:59:59');
         }
         $tiket = $builder->orderBy('tiket.created_at', 'DESC')->findAll();
+        
+        // Hitung durasi untuk setiap tiket
+        foreach ($tiket as &$t) {
+            if ($t['updated_at'] && $t['status'] !== 'Menunggu') {
+                $created = new \DateTime($t['created_at']);
+                $updated = new \DateTime($t['updated_at']);
+                $interval = $created->diff($updated);
+                $t['durasi'] = $interval->format('%d hari %h jam %i menit');
+            } else {
+                $t['durasi'] = '-';
+            }
+        }
+        
         // PDF
         $html = view('dashboard/laporan/pdf', ['tiket' => $tiket]);
         $dompdf = new \Dompdf\Dompdf();

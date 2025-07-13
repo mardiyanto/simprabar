@@ -38,9 +38,10 @@
                     <th>Nomor Tiket</th>
                     <th>Ruangan</th>
                     <th>Barang</th>
-                    <th>Deskripsi Kerusakan</th>
+                    
                     <th>Status</th>
                     <th>Hasil</th>
+                    <th>Durasi Penanganan</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -52,9 +53,10 @@
                         <td><?= esc($t['nomor_tiket']) ?></td>
                         <td><?= esc($t['nama_ruangan']) ?></td>
                         <td><?= esc($t['nama_barang']) ?></td>
-                        <td><?= esc($t['deskripsi_kerusakan']) ?></td>
+                       
                         <td><?= esc($t['status']) ?></td>
                         <td><?= esc($t['hasil_perbaikan']) ?></td>
+                        <td><?= esc($t['durasi']) ?></td>
                         <td>
                           <a href="<?= base_url('tiket/detail/'.$t['id']) ?>" class="btn btn-info btn-sm">Detail</a>
                           <?php if ($role === 'it' || $role === 'admin'): ?>
@@ -68,7 +70,7 @@
                       </tr>
                     <?php endforeach; ?>
                   <?php else: ?>
-                    <tr><td colspan="8" class="text-center">Tidak ada data tiket.</td></tr>
+                    <tr><td colspan="9" class="text-center">Tidak ada data tiket.</td></tr>
                   <?php endif; ?>
                 </tbody>
               </table>
@@ -137,6 +139,13 @@
               <input type="hidden" name="foto_kerusakan_camera" id="foto_kerusakan_camera">
             </div>
           </div>
+          <?php if ($role === 'admin'): ?>
+          <div class="form-group">
+            <label>Tanggal & Jam Tiket Dibuat</label>
+            <input type="datetime-local" name="created_at_manual" class="form-control">
+            <small class="form-text text-muted">Opsional, default: sekarang</small>
+          </div>
+          <?php endif; ?>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -202,6 +211,13 @@
               <input type="hidden" name="foto_perbaikan_camera" id="foto_perbaikan_camera">
             </div>
           </div>
+          <?php if ($role === 'admin'): ?>
+          <div class="form-group">
+            <label>Tanggal & Jam Update Perbaikan</label>
+            <input type="datetime-local" name="updated_at_manual" class="form-control">
+            <small class="form-text text-muted">Opsional, default: sekarang</small>
+          </div>
+          <?php endif; ?>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
